@@ -1,0 +1,6 @@
+.DS_Store
+__pycache__
+
+# Cpp executable
+main
+a.out
