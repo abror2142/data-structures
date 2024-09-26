@@ -21,7 +21,7 @@ class DynamicArray {
 
             int* arr = this->array;
             this->array = new_array;
-            delete arr;
+            delete[] arr;
             this->capacity = new_capacity;
         }
 
@@ -36,7 +36,7 @@ class DynamicArray {
 
             int* arr = this->array;
             this->array = new_array;
-            delete arr;
+            delete[] arr;
             this->capacity = new_capacity;
         }
 

@@ -4,5 +4,5 @@ __pycache__
 # Cpp executable
 main
 a.out
-
+# VSCode files
 .vscode
