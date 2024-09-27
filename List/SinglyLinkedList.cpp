@@ -34,7 +34,7 @@ class SinglyLinkedList {
             Node* new_node = new Node(data);
             this->head = new_node;
             this->tail = new_node;
-            this->size = 0;
+            this->size = 1;
         }
 
         void add_head(int data)
@@ -68,6 +68,30 @@ class SinglyLinkedList {
             }
             
             this->size = this->size + 1;
+        }
+
+        void add_at(int index, int data)
+        {
+            // Indexing starts with 0!
+            if(index == 0)
+                this->add_head(data);
+            else if(index == this->size)
+                this->add_tail(data);
+            else if(index > 0 && index < this->size)
+            {
+                Node* new_node = new Node(data);
+                Node* current = this->head;
+                
+                for(int i=0; i<index-1; i++)
+                {
+                    current = current->next;
+                }
+
+                new_node->next = current->next;
+                current->next = new_node;
+
+                this->size = this->size + 1;
+            }
         }
 
         void remove_head()
@@ -117,6 +141,30 @@ class SinglyLinkedList {
                 this->size = this->size - 1;
             }
         }
+        
+        void remove_at(int index)
+        {
+            if(index == 0)
+                this->remove_head();
+            else if(index == this->size - 1)
+                this->remove_tail();
+            else if(index > 0 && index < this->size-1)
+            {
+                Node* current = this->head;
+                Node* previous = nullptr;
+
+                for(int i=0; i<index; i++)
+                {
+                    previous = current;
+                    current = current->next;
+                }
+
+                previous->next = current->next;
+                
+                delete current;
+                this->size = this->size - 1;
+            }
+        }
 
         void print_list()
         {
@@ -144,6 +192,8 @@ int main(int argc, char * argv[])
     list.add_tail(11);
     list.remove_head();
     list.remove_tail();
+    list.add_at(1, 2);
+    list.remove_at(1);
     list.print_list();
     return 0;
 }
