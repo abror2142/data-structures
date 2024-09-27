@@ -45,6 +45,11 @@ class LinkedList {
             return this->size == 0;
         }
 
+        int get_size()
+        {
+            return this->size;
+        }
+
         void add_head(int num)
         {
             Node* new_node = new Node(num);
