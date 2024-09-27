@@ -5,12 +5,10 @@ using namespace std;
 
 struct Node {
     int data;
-    Node* prev;
     Node* next;
 
     Node(int d) {
         this->data = d;
-        this->prev = nullptr;
         this->next = nullptr;
     }
 };
@@ -36,6 +34,14 @@ class SinglyLinkedList {
             this->tail = new_node;
             this->size = 1;
         }
+
+        int get_size() {return this->size; }
+
+        bool is_empty() {return this->size == 0; }
+
+        Node* get_head() {return this->head; }
+
+        Node* get_tail() {return this->tail; }
 
         void add_head(int data)
         {
