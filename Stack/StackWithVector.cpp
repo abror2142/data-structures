@@ -4,14 +4,14 @@
 using namespace std;
 
 
-class Stack {
+template <typename T> class Stack {
     private:
-        vector<int>* arr;
+        vector<T>* arr;
     
     public:
         Stack()
         {
-            this->arr = new vector<int>;
+            this->arr = new vector<T>;
         }
 
         int get_size() {return this->arr->size(); }
@@ -20,7 +20,7 @@ class Stack {
 
         int top() {return this->arr->at(this->arr->size() - 1); }
 
-        void push(int data)
+        void push(T data)
         {
             this->arr->push_back(data);
         }
@@ -48,11 +48,11 @@ class Stack {
 
 int main(int argc, char * argv[])
 {
-    Stack stack;
-    stack.push(10);
-    stack.push(2);
-    stack.push(12);
-    stack.push(4);
+    Stack<char> stack;
+    stack.push('A');
+    stack.push('B');
+    stack.push('E');
+    stack.push('X');
     stack.pop();
     stack.print_stack();
     cout << "Stack Size: " << stack.get_size() << endl;
