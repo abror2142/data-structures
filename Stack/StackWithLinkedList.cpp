@@ -2,11 +2,11 @@
 
 using namespace std;
 
-struct Node {
-    int data; 
+template <typename T> struct Node {
+    T data; 
     Node* next;
 
-    Node(int new_data)
+    Node(T new_data)
     {
         this->data = new_data;
         this->next = nullptr;
@@ -14,10 +14,10 @@ struct Node {
 };
 
 
-class Stack {
+template <typename T> class Stack {
     private:
         int size;
-        Node* head;
+        Node<T>* head;
     
     public:
         Stack()
@@ -28,7 +28,7 @@ class Stack {
 
         Stack(int data)
         {
-            Node* new_node = new Node(data);
+            Node<T>* new_node = new Node<T>(data);
             this->head = new_node;
             this->size = 1;
         }
@@ -39,9 +39,9 @@ class Stack {
     
         int top() {return this->head->data; }
 
-        void push(int data)
+        void push(T data)
         {
-            Node* new_node = new Node(data);
+            Node<T>* new_node = new Node<T>(data);
            
             if(this->head == nullptr)
             {
@@ -53,7 +53,6 @@ class Stack {
             }
 
             this->size = this->size + 1;
-
         }
 
         void pop()
@@ -61,7 +60,7 @@ class Stack {
             if(this->head == nullptr)
                 cout << "Error: List has no elements!" << endl;
             else{
-                Node* temp = this->head; // keep pointer to delete later
+                Node<T>* temp = this->head; // keep pointer to delete later
                 this->head = this->head->next;
 
                 delete temp;
@@ -76,7 +75,7 @@ class Stack {
             else
             {
                 cout << "Stack: " << endl;
-                Node* current = this->head;
+                Node<T>* current = this->head;
 
                 while(current != nullptr)
                 {
@@ -89,9 +88,9 @@ class Stack {
 
 int main(int argc, char * argv[]) 
 {
-    Stack stack(10);
-    stack.push(39);
-    stack.push(40);
+    Stack<char> stack('A');
+    stack.push('H');
+    stack.push('C');
     stack.pop();
     stack.print();
     cout << "\nStack Size: " << stack.get_size() << endl;
