@@ -7,7 +7,7 @@ using namespace std;
 // has an associated priority. In a priority queue, elements with high priority 
 // are served before elements with low priority.  --- wiki
 
-//This means we should implement it using MaxHeap
+//This means we could implement it using MaxHeap
 
 /*
     PQ operations:
@@ -77,6 +77,8 @@ template <typename T> class PQueue
             this->size = 0;
             this->heap = new T[max_queue_size];
         }
+
+        T peek() {return heap[0]; }
 
         bool empty() {return size == 0; }
 
