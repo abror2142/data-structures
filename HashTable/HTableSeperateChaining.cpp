@@ -4,27 +4,49 @@
 using namespace std;
 
 
-struct Person
+class Person
 {   
-    string name;
-    int age;
-    string phone;
+    private:
+        string name;
+        int age;
+        string phone;
 
-    Person(string name, int age, string phone)
-    {
-        this->name = name;
-        this->age = age;
-        this->phone = phone;
-    }
+    public:
+        Person(string name, int age, string phone)
+        {
+            this->name = name;
+            this->age = age;
+            this->phone = phone;
+        }
+
+        int hash_value()
+        {
+            int total = 0;
+            for(char ch : name)
+                total += int(ch);
+
+            for(char ch : phone)
+                total += int(ch);
+            
+            total += age;
+            return total;
+        }
+
+        string stringified()
+        {
+            string s = to_string(age);
+            s = name + " " + s;
+            return s;
+        }
 };
 
 
-struct Node
+template <typename T> struct Node
 {
-    Person* person;
+    T* person;
     Node* next;
 
-    Node(Person* person)
+    Node(T* person)
     {   
         this->person = person;
         this->next = nullptr;
@@ -32,10 +54,10 @@ struct Node
 };
 
 
-class LinkedList
+template <typename T> class LinkedList
 {
     private:
-        Node* root;
+        Node<T>* root;
         int size;
 
     public:
@@ -45,15 +67,15 @@ class LinkedList
             this->size = 0;
         }
 
-        LinkedList(Person* person)
+        LinkedList(T* person)
         {
-            this->root = new Node(person);
+            this->root = new Node<T>(person);
             this->size = 1;
         }
 
-        void add_to_tail(Person* person)
+        void add_to_tail(T* person)
         {
-            Node* new_node = new Node(person);
+            Node<T>* new_node = new Node<T>(person);
 
             if(this->root == nullptr)
             {
@@ -62,7 +84,7 @@ class LinkedList
                 return;
             }
 
-            Node* current = this->root;
+            Node<T>* current = this->root;
 
             while(current->next)
             {
@@ -80,12 +102,12 @@ class LinkedList
                 cout << "This List is Empty!" << endl;
             else
             {
-                Node* current = root;
+                Node<T>* current = root;
                 cout << "List: ";
                 while(current)
                 {
-                    Person* person = current->person;
-                    cout << person->name << " " << person->age << " " << person->phone << " -> ";
+                    T* person = current->person;
+                    cout << person->stringified() << " -> ";
                     current = current->next;
                 }
                 cout << endl;
@@ -94,28 +116,15 @@ class LinkedList
 };
 
 
-class HashTableSeperateChaining
+template <typename T> class HashTableSeperateChaining
 {
     private:
         int BUCKET; // hash table size;
-        LinkedList* table;
+        LinkedList<T>* table;
 
-        int hashFunction(Person* person)
-        {
-            string name = person->name;
-            int age = person->age;
-            string phone = person->phone;
-            
-            int total = 0;
-            for(char ch : name)
-                total += int(ch);
-
-            for(char ch : phone)
-                total += int(ch);
-            
-            total += age;
-            
-            return total % BUCKET;
+        int hashFunction(T* person)
+        {        
+            return  person->hash_value() % BUCKET;
         }
         
 
@@ -123,13 +132,18 @@ class HashTableSeperateChaining
         HashTableSeperateChaining(int bucket)
         {
             this->BUCKET = bucket;
-            this->table = new LinkedList[bucket];
+            this->table = new LinkedList<T>[bucket];
         }
 
-        void insert(Person* person)
+        void insert(T* person)
         {
             int key = hashFunction(person);
             table[key].add_to_tail(person);
+        }
+
+        bool contains(T*)
+        {
+
         }
 
         void print()
@@ -151,7 +165,7 @@ int main(int argc, char * argv[])
     people.push_back(new Person("Tushar Roy", 32, "+6789054321"));
     people.push_back(new Person("Abdul Bari", 40, "+0987612345"));
 
-    HashTableSeperateChaining table(3);
+    HashTableSeperateChaining<Person> table(3);
 
     for(auto person : people)
         table.insert(person);
