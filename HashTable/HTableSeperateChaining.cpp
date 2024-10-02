@@ -96,6 +96,42 @@ template <typename T> class LinkedList
             size++;
         }
 
+        void remove(T* person)
+        {
+            if(root == nullptr)
+                cout << "Empty List!" << endl;
+            else{
+                Node<T>* current = root;
+                Node<T>* parent = nullptr;
+
+                // Now comparision is based on the memory address of the node.
+                // I must implement data based comparision;
+                while(current->next && current->person != person)
+                {
+                    parent = current;
+                    current = current->next;
+                }
+
+                cout << "Hit" << current->person->stringified() << endl;
+
+                // special case is when current is root of the list;
+                if(current == root)
+                {
+                    Node<T>* temp = current;
+                    this->root = current->next;
+                    delete temp;
+                    size--;
+                    return;
+                }
+
+                if(current){
+                    parent->next = current->next;
+                    delete current;
+                    size--;
+                    return;
+                }
+            }
+        }
         void print()
         {
             if(root == nullptr)
@@ -124,6 +160,7 @@ template <typename T> class HashTableSeperateChaining
 
         int hashFunction(T* person)
         {        
+            // for now we think that hash value function is implemented
             return  person->hash_value() % BUCKET;
         }
         
@@ -141,9 +178,10 @@ template <typename T> class HashTableSeperateChaining
             table[key].add_to_tail(person);
         }
 
-        bool contains(T*)
+        void remove(T* person)
         {
-
+            int key = hashFunction(person);
+            table[key].remove(person);
         }
 
         void print()
@@ -169,6 +207,8 @@ int main(int argc, char * argv[])
 
     for(auto person : people)
         table.insert(person);
+    
+    table.remove(people[0]);
 
     table.print();
 
