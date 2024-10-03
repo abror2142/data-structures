@@ -32,6 +32,7 @@ class HashTable
         double growth_rate;
         double max_load_factor;
         HashNode* table;
+        HashNode* TombStone;
 
         int hash_function(string key)
         {
@@ -80,6 +81,7 @@ class HashTable
             this->growth_rate = 2.0;
             this->max_load_factor = 0.667;
             this->table = new HashNode[BUCKET];
+            this->TombStone = new HashNode("TombStone", 0);
         }
   
         void insert(string key, int value)
@@ -87,17 +89,48 @@ class HashTable
             HashNode* new_node = new HashNode(key, value);
             int index = hash_function(key);
 
-            while(table[index].key != "")
+            while(table[index].key != "" || table[index].key == TombStone->key)
             {
                 index = linear_probe(index);
                 cout << "Linear Probing worked!" << index << endl;
             }
 
             table[index] = *new_node;
-            size++;
+            if(table[index].key != TombStone->key)
+                size++;
 
             if(rehashing_required())
                 rehash();
+        }
+
+
+        // We'll implement AWESOME TombStone Logic :)
+        void remove(string key, int value)
+        {
+            // It may seem funny but this code doesn't detect if the key is not in hashtable
+            int index = hash_function(key);
+
+            while(table[index].value != value)
+            {
+                // Linear probe to find the node;
+                index = linear_probe(index);
+            }
+
+            // Here element must be found!
+            table[index] = *TombStone;
+
+        }
+
+        int find(string key)
+        {
+            int index = hash_function(key);
+
+            while(table[index].key != key || table[index].key == TombStone->key)
+            {
+                index = linear_probe(index);
+            }
+
+            return table[index].value;
         }
 
         void print()
@@ -120,6 +153,10 @@ int main (int argc, char * argv[])
     table.insert("Shoqosim", 42);
     table.insert("Murod", 12);
     table.insert("Ortiq", 52);
+    table.remove("Ortiq", 52);
+    table.insert("Ortiq", 52);
+    table.remove("Ortiq", 52);
+    cout << table.find("Nodir") << endl;
     table.print();
 
     return 0;
