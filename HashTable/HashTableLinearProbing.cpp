@@ -1,163 +1,223 @@
 #include <iostream>
-#include <string>
-
+#include <numeric>
 
 using namespace std;
 
+bool is_prime(int n) 
+{ 
+    // Corner cases 
+    if (n <= 1)  return false; 
+    if (n <= 3)  return true; 
+   
+    // This is checked so that we can skip  
+    // middle five numbers in below loop 
+    if (n%2 == 0 || n%3 == 0) return false; 
+   
+    for (int i=5; i*i<=n; i=i+6) 
+        if (n%i == 0 || n%(i+2) == 0) 
+           return false; 
+   
+    return true; 
+} 
 
-struct HashNode
+int next_prime(int N)
 {
-    string key;
-    int value;
-
-    HashNode()
-    {
-        this->key = "";
-        this->value = 0;
+ 
+    // Base case
+    if (N <= 1)
+        return 2;
+ 
+    int prime = N;
+    bool found = false;
+ 
+    // Loop continuously until isPrime returns
+    // true for a number greater than n
+    while (!found) {
+        prime++;
+ 
+        if (is_prime(prime))
+            found = true;
     }
+ 
+    return prime;
+}
 
-    HashNode(string key, int value)
+
+template <typename K, typename V> struct HashNode
+{
+    K key;
+    V value;
+
+    HashNode(K key, V value)
     {
         this->key = key;
         this->value = value;
-    }    
+    }
+
+    HashNode()
+    {
+        this->key = K{};
+        this->value = V{};
+    }
+
+    size_t hash_value()
+    {
+        return hash<K>()(key) ^ hash<V>()(value);  
+    }
 };
 
 
-class HashTable
-{  
+template <typename K, typename V> class HashTable
+{
     private:
+        int LOAD_CONSTANT = 3;
+        double MAX_LOAD_FACTOR = 0.665;
+
         int size;
-        int BUCKET;
-        double growth_rate;
-        double max_load_factor;
-        HashNode* table;
-        HashNode* TombStone;
+        int capacity;
+        HashNode<K, V>* table;
 
-        int hash_function(string key)
+        int linear_probing(int index)
         {
-            int total = 0;
+            // index + b  is very easy; doesn't require capacity checks;
+            // k * index is failing everytime with 0; so I avoided using it;
+            // k * index + b will do the job, only if capacity is the prime number.
 
-            for(char ch : key)
-                total += int(ch);
+            // I tried making k and index coprime and using k * index, result is loop when index=0;
 
-            total += key.length();
+            // Globally available; k defines acceleration and ramdomness while choosing next slot;
+            // increasing by only b might not provide ramdomness, noticable in large tables;
 
-            return total % BUCKET;
+            int k = LOAD_CONSTANT; 
+            int b = 1; // makes sure every node is visited; handles index=0 case;
+
+            return (k * index + b) % capacity;
         }
 
-        int linear_probe(int index)
-        {
-            return (2 * index + 1) % BUCKET;
+        void adjust_capacity()
+        {   
+            int prime_num = next_prime(capacity);
+
+            // Somehow LOAD_CONSTANT can be equal to LOAD_CONSTANT; avoid that to have coprimes;
+            if(LOAD_CONSTANT == prime_num)
+                prime_num = next_prime(prime_num);
+            
+            capacity = prime_num;
         }
 
-        double get_load_factor() {return size / double(BUCKET); }
+        void resize_table(int old_capacity)
+        {
+            HashNode<K, V>* old_table = table;
+            table = new HashNode<K, V>[capacity];
+            size = 0;
 
-        bool rehashing_required() {return get_load_factor() >= max_load_factor; }
+            for(int i=0; i<old_capacity; i++)
+                if(old_table[i].key != K{})
+                    insert(old_table[i].key, old_table[i].value);
+        }
 
         void rehash()
         {
-            cout << "Rehashing...." << endl;
-            int old_bucket_size = BUCKET;
-            BUCKET = BUCKET * growth_rate;
-            HashNode* old_table = table;
-            table = new HashNode[BUCKET];
-            this->size = 0;
+            cout << "Rehashing..." << endl;
+            int old_capacity = capacity; 
+            
+            capacity *= 2;
+            adjust_capacity();
+            
+            resize_table(old_capacity);
+        }
 
-            for(int i=0; i<old_bucket_size; i++)
-            {   
-                HashNode node = old_table[i];
-                insert(node.key, node.value);
-            }
-
-            delete old_table;
+        int hash_function(K key)
+        {
+            cout << "Hashing... " << key << endl;
+            int a = hash<K>()(key) % capacity;
+            cout << "Hashed value: " << a << endl;
+            return a;
         }
 
     public:
         HashTable()
         {
-            this->BUCKET = 7;
+            this->capacity = 5;
+            this->table = new HashNode<K, V>[capacity];
             this->size = 0;
-            this->growth_rate = 2.0;
-            this->max_load_factor = 0.667;
-            this->table = new HashNode[BUCKET];
-            this->TombStone = new HashNode("TombStone", 0);
         }
-  
-        void insert(string key, int value)
+
+        HashTable(int capacity)
         {
-            HashNode* new_node = new HashNode(key, value);
-            int index = hash_function(key);
+            this->capacity = capacity;
+            this->table = new HashNode<K, V>[capacity];
+            this->size = 0;
+        }
 
-            while(table[index].key != "" || table[index].key == TombStone->key)
-            {
-                index = linear_probe(index);
-                cout << "Linear Probing worked!" << index << endl;
-            }
+        bool contains(K key) {return search(key) != V{}; }
+        
+        bool empty() {return size == 0; }
 
-            table[index] = *new_node;
-            if(table[index].key != TombStone->key)
-                size++;
+        int size() {return size; }
 
-            if(rehashing_required())
+        void insert(K key, V value)
+        {
+            if(size/double(capacity) >= MAX_LOAD_FACTOR)
                 rehash();
-        }
 
+            HashNode<K, V>* node = new HashNode<K, V>(key, value);
+            int index = this->hash_function(key);
 
-        // We'll implement AWESOME TombStone Logic :)
-        void remove(string key, int value)
-        {
-            // It may seem funny but this code doesn't detect if the key is not in hashtable
-            int index = hash_function(key);
-
-            while(table[index].value != value)
-            {
-                // Linear probe to find the node;
-                index = linear_probe(index);
+            while(table[index].key != K{}){
+                index = linear_probing(index);
             }
 
-            // Here element must be found!
-            table[index] = *TombStone;
-
+            table[index] = *node;
+            size++;
         }
 
-        int find(string key)
+        V search(K key)
         {
             int index = hash_function(key);
 
-            while(table[index].key != key || table[index].key == TombStone->key)
-            {
-                index = linear_probe(index);
-            }
+            while(table[index].key != K{} && table[index].key != key)
+                index = linear_probing(index);
+            
+            if(table[index].key == K{})
+                return V{};
+            else 
+                return table[index].value; 
+        }
 
-            return table[index].value;
+        void remove(K key)
+        {
+            // TOMBSTONE method to delete node and keep consistency among nodes!
+            
         }
 
         void print()
         {
-            for(int i=0; i<BUCKET; i++)
+            for(int i=0; i<capacity; i++)
             {
-                cout << table[i].key << ": " << table[i].value << endl;
+                cout << "Key: " << table[i].key << "\tValue: " << table[i].value << endl;
             }
         }
 };
 
 
-
-int main (int argc, char * argv[])
+int main(int argc, char * argv[])
 {
-    HashTable table;
-    table.insert("Alisher", 32);
-    table.insert("Farhod", 22);
-    table.insert("Nodir", 30);
-    table.insert("Shoqosim", 42);
-    table.insert("Murod", 12);
-    table.insert("Ortiq", 52);
-    table.remove("Ortiq", 52);
-    table.insert("Ortiq", 52);
-    table.remove("Ortiq", 52);
-    cout << table.find("Nodir") << endl;
+    HashTable<string, int> table;
+    table.insert("Nodir", 70);
+    table.insert("Qodir", 75);
+    table.insert("Botir", 40);
+    table.insert("Baxrom", 12);
+    table.insert("Bahodir", 22);
+    table.insert("Bahodiadasdr", 22);
+    table.insert("Bahodiadasr", 22);
+    table.insert("Bahodisdsdr", 22);
+    table.insert("Bahodidsr", 22);
     table.print();
 
+    cout << table.contains("Qodir") << endl;
+    cout << table.contains("Nodirali") << endl;
+
+    HashNode<string, int> node("Abduvali", 43);
     return 0;
 }
