@@ -175,6 +175,34 @@ template <typename T> class AVLTree
                     node->right = remove(node->right, successor->data);
                 } 
             }
+            
+             node->height = height(node->left) + 
+                   height(node->right) + 1;
+
+            int balance = get_balance(node);
+
+            if (balance > 1 && 
+                get_balance(node->left) >= 0)
+                return right_rotate(node);
+
+            if (balance > 1 && 
+                get_balance(root->left) < 0) {
+                node->left = left_rotate(node->left);
+                return right_rotate(node);
+            }
+
+            if (balance < -1 && 
+                get_balance(node->right) <= 0)
+                return left_rotate(node);
+
+
+            if (balance < -1 && 
+                get_balance(node->right) > 0) {
+                node->right = right_rotate(node->right);
+                return left_rotate(node);
+            }
+
+
             return node;
         }
 
@@ -184,6 +212,14 @@ template <typename T> class AVLTree
             in_order_traversal(node->left);
             cout << node->data << " ";
             in_order_traversal(node->right);
+        }
+
+        void pre_order_traversal(Node<T>* node)
+        {
+            if(node == nullptr) return;
+            cout << node->data << " ";
+            pre_order_traversal(node->left);
+            pre_order_traversal(node->right);
         }
 
         Node<T>* find(Node<T>* node, T data)
@@ -275,6 +311,15 @@ template <typename T> class AVLTree
                 cout << "The tree is empty!" << endl;
             return;
         }
+
+        void pre_order_traversal()
+        {
+            if(size > 0)
+                pre_order_traversal(root);
+            else
+                cout << "The tree is empty!" << endl;
+            return;
+        }
 };
 
 
@@ -282,15 +327,13 @@ int main(int argc, char * argv[])
 {
     AVLTree<int> tree(10);
     tree.insert(20);
-    tree.insert(2);
-    tree.insert(3);
-    tree.insert(1);
-    tree.insert(12);
-    cout << tree.insert(22) << endl;
-    tree.insert(23);
-    tree.insert(25);
+    tree.insert(30);
+    tree.insert(40);
+    tree.insert(50);
+    tree.insert(60);
 
+    //tree.remove(10);
     cout << "Height: " << tree.get_height() << endl;
-    tree.in_order_traversal();
+    tree.pre_order_traversal();
     return 0;
 }
