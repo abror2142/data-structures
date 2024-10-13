@@ -3,6 +3,7 @@
     In AVL tree max height of the tree is always log(n)
     which makes the searching O(log n) even in worst case.
 """
+from queue import Queue
 
 class Node:
     def __init__(self, data) -> None:
@@ -77,7 +78,7 @@ class AVLTree:
         return node
     
     def _balanceNode(self, node: Node, data) -> Node:
-        
+
         balance = self._getBalanceFactor(node)
 
         if balance > 1 and data < node.left.data:
@@ -207,6 +208,24 @@ class AVLTree:
         else:
             self._inOrderTraversal(self.root)
 
+    def levelOrderTraversal(self) -> None:
+        if self.root is None:
+            raise KeyError("The tree is empty.")
+        else:
+            current = self.root
+            queue = Queue()
+            queue.put(current)
+
+            while not queue.empty():
+                top: Node = queue.get()
+                if top.left is not None:
+                    queue.put(top.left)
+                if top.right is not None:
+                    queue.put(top.right)
+                print(top.data)
+            
+        return
+    
     def getRoot(self):
         if self.root is None:
             raise KeyError("The tree is empty.")
@@ -239,6 +258,7 @@ tree.insert(2)
 tree.insert(1)
 tree.insert(29)
 tree.remove(12)
+tree.levelOrderTraversal()
 print("Root:", tree.getRoot())
 tree.preOrderTraversal()
 
