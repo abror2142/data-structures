@@ -261,4 +261,3 @@ tree.remove(12)
 tree.levelOrderTraversal()
 print("Root:", tree.getRoot())
 tree.preOrderTraversal()
-

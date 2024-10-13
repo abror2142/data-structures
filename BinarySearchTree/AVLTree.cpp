@@ -95,22 +95,14 @@ template <typename T> class AVLTree
             return temp;
         }
 
-        Node<T>* insert(Node<T>* node, T data)
+        void update_height(Node<T> *node)
         {
-            // Base Case
-            if(node == nullptr) return new Node<T>(data);
+            node->height = height(node->left) + height(node->right) + 1;
+            return;
+        }
 
-            if(data > node->data)
-                node->right = insert(node->right, data);
-            else if(data < node->data)
-                node->left = insert(node->left, data);
-            else
-                return node;
-            
-            // updates heights after insertion;
-            // new inserted node will get 0, its parents will be incremented.
-            node->height = 1 + max(height(node->left), height(node->right));
-
+        Node<T> *balance_node(Node<T> *node, T data)
+        {
             int balance = get_balance(node);
 
             if(balance > 1 && data < node->left->data)
@@ -130,6 +122,26 @@ template <typename T> class AVLTree
             }
 
             return node;
+        }
+
+        Node<T>* insert(Node<T>* node, T data)
+        {
+            // Base Case
+            if(node == nullptr) return new Node<T>(data);
+
+            if(data > node->data)
+                node->right = insert(node->right, data);
+            else if(data < node->data)
+                node->left = insert(node->left, data);
+            else
+                return node;
+            
+            // updates heights after insertion;
+            // new inserted node will get 0, its parents will be incremented.
+            update_height(node);
+
+            // To balance the unbalanced Node            
+            return balance_node(node, data);
 
         }
         
@@ -176,34 +188,10 @@ template <typename T> class AVLTree
                 } 
             }
             
-             node->height = height(node->left) + 
-                   height(node->right) + 1;
-
-            int balance = get_balance(node);
-
-            if (balance > 1 && 
-                get_balance(node->left) >= 0)
-                return right_rotate(node);
-
-            if (balance > 1 && 
-                get_balance(root->left) < 0) {
-                node->left = left_rotate(node->left);
-                return right_rotate(node);
-            }
-
-            if (balance < -1 && 
-                get_balance(node->right) <= 0)
-                return left_rotate(node);
-
-
-            if (balance < -1 && 
-                get_balance(node->right) > 0) {
-                node->right = right_rotate(node->right);
-                return left_rotate(node);
-            }
-
-
-            return node;
+            update_height(node);
+            
+            // Balance the node if it is unbalanced!
+            return balance_node(node, data);
         }
 
         void in_order_traversal(Node<T>* node)
@@ -299,7 +287,8 @@ template <typename T> class AVLTree
                 return T{};
             }
 
-            remove(root, data);
+            root = remove(root, data);
+            size--;
             return data;
         }
 
@@ -332,7 +321,7 @@ int main(int argc, char * argv[])
     tree.insert(50);
     tree.insert(60);
 
-    //tree.remove(10);
+    tree.remove(10);
     cout << "Height: " << tree.get_height() << endl;
     tree.pre_order_traversal();
     return 0;
