@@ -21,6 +21,16 @@ class AVLTree:
             self.root = None
             self.size == 0
 
+    def _find(self, node: Node, data) -> Node:
+        if node is None:
+            return None
+        if node.data == data:
+            return node
+        if data > node.data:
+            return self._find(node.right, data)
+        if data < node.data:
+            return self._find(node.left, data)
+
     def _getRightSuccessor(self, node: Node) -> Node:
         successor = node.right
         while successor.left:
@@ -64,10 +74,10 @@ class AVLTree:
     
     def _updateHeight(self, node: Node) -> None:
         node.height = 1 + max(self.height(node.left), self.height(node.right))
-        return
+        return node
     
     def _balanceNode(self, node: Node, data) -> Node:
-
+        
         balance = self._getBalanceFactor(node)
 
         if balance > 1 and data < node.left.data:
@@ -86,7 +96,6 @@ class AVLTree:
 
         return node
 
-
     def _insert(self, node: Node, data) -> Node:
         if node is None:
             return Node(data)
@@ -95,6 +104,8 @@ class AVLTree:
             node.right = self._insert(node.right, data)
         if data < node.data:
             node.left = self._insert(node.left, data)
+        else:
+            return node
         
         # Update height of the node.
         self._updateHeight(node)
@@ -138,11 +149,17 @@ class AVLTree:
         # Work to be done to keep balance of the height among tree nodes;
 
         # Update the height of the node
-        self._updateHeight(node)
+        node = self._updateHeight(node)
 
         # Balance the node
         return self._balanceNode(node, data)
 
+    def _postOrderTraversal(self, node: Node) -> None:
+        if node is None:
+            return 
+        self._postOrderTraversal(node.left)
+        self._postOrderTraversal(node.right)
+        print(node.data)
 
     def _preOrderTraversal(self, node: Node) -> None:
         if node is None:
@@ -150,17 +167,14 @@ class AVLTree:
         print(node.data)
         self._preOrderTraversal(node.left)
         self._preOrderTraversal(node.right)
-    
-    def _find(self, node: Node, data) -> Node:
-        if node is None:
-            return None
-        if node.data == data:
-            return node
-        if data > node.data:
-            return self._find(node.right, data)
-        if data < node.data:
-            return self._find(node.left, data)
 
+    def _inOrderTraversal(self, node: Node) -> None:
+        if node is None:
+            return
+        self._preOrderTraversal(node.left)
+        print(node.data)
+        self._preOrderTraversal(node.right)
+    
     def getHeightOf(self, data):
         node = self._find(self.root, data)
         if node is None:
@@ -181,8 +195,20 @@ class AVLTree:
         else:
             self._preOrderTraversal(self.root)
 
+    def postOrderTraversal(self) -> None:
+        if self.root is None:
+            raise KeyError("Tree is empty!")
+        else:
+            self._postOrderTraversal(self.root)
+
+    def inOrderTraversal(self) -> None:
+        if self.root is None:
+            raise KeyError("Tree is empty!")
+        else:
+            self._inOrderTraversal(self.root)
+
     def getRoot(self):
-        if self.root is not None:
+        if self.root is None:
             raise KeyError("The tree is empty.")
         else:
             return self.root.data
@@ -190,33 +216,29 @@ class AVLTree:
     def insert(self, data):
         if data is None:
             raise ValueError("Invalid Value!")
-        else:
-            self.root = self._insert(self.root, data)
+        self.root = self._insert(self.root, data)
+        self.size = self.size + 1
 
     def remove(self, data):
         if not self.contains(data):
             raise KeyError("There is no key!")
-        self._remove(self.root, data)
+        self.root = self._remove(self.root, data)
+        self.size = self.size - 1
 
 
 tree = AVLTree(12)
 
 tree.insert(23)
-tree.insert(3)
-tree.insert(2)
 tree.insert(10)
+tree.remove(10)
+tree.insert(4)
+tree.insert(78)
+tree.insert(14)
+tree.insert(14)
+tree.insert(2)
 tree.insert(1)
-tree.insert(12)
-tree.insert(19)
-tree.insert(17)
-tree.insert(7)
-tree.insert(5)
-tree.insert(6)
-tree.insert(11)
-tree.remove(1)
-tree.remove(7)
+tree.insert(29)
 tree.remove(12)
-tree.remove(6)
-print("Height:", tree.getHeightOf(3))
-
+print("Root:", tree.getRoot())
 tree.preOrderTraversal()
+
