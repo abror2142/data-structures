@@ -87,11 +87,10 @@ class PriorityQueue:
     def findIndex(self, id: int=None, name: str=None):
         if id is None and name is None:
             raise ValueError("Please define at least one valid argument!")
-        elif id is None:
+        elif id == 0:
             index = self._findByName(name)
         elif name == '':
             index = self._findByID(id)
-            print("Hit!")
         else:
             index = self._findByNameAndID(id, name)
         return index
@@ -133,9 +132,6 @@ class PriorityQueue:
             raise ValueError("Negative priorities are not allowed.")
 
         index = self.findIndex(id, name)
-        print("------", index, "------", id, name, new_priority)
-        if name is '':
-            print("None Type Hit!")
         if index >= 0 and index < self.size:        
             if(new_priority > self.queue[index].priority):
                 self._increasePriority(index, new_priority)   
