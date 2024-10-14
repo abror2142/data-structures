@@ -1,22 +1,21 @@
-#include <iostream>
-
-using namespace std;
-
 // In computer science, a priority queue is an abstract data type similar to a 
 // regular queue or stack abstract data type. Each element in a priority queue 
 // has an associated priority. In a priority queue, elements with high priority 
 // are served before elements with low priority.  --- wiki
 
-//This means we could implement it using MaxHeap
+// This means we could implement it using MaxHeap
 
-/*
-    PQ operations:
-        -- add(element)
-        -- poll() => extract_max in MaxHeap
-        -- empty()
-        -- bubble_up() = swim() 
-        -- bubble_down() = sink()
-*/
+// PQ operations:
+//     -- add(element)
+//     -- poll() => extract_max in MaxHeap
+//     -- empty()
+//     -- bubble_up() = swim() 
+//     -- bubble_down() = sink()
+
+#include <iostream>
+
+using namespace std;
+
 
 template <typename T> class PQueue 
 {

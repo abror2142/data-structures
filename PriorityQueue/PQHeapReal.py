@@ -84,6 +84,17 @@ class PriorityQueue:
         self.queue[index].priority = new_priority
         self._bubbleUp(index)
 
+    def findIndex(self, id: int=None, name: str=None):
+        if id is None and name is None:
+            raise ValueError("Please define at least one valid argument!")
+        elif id is None:
+            index = self._findByName(name)
+        elif name is None:
+            index = self._findByID(id)
+        else:
+            index = self._findByNameAndID(id, name)
+        return index
+
     def add(self, client: Client) -> bool:
         if self.size == self.max_size:
             raise OverflowError("Queue is full!")
@@ -104,23 +115,28 @@ class PriorityQueue:
 
         self._bubbleDown(0)
 
-    def changePriority(self, new_priority: int, id:int=None, name: str = None) -> None:
-        if id is None and name is None:
-            raise ValueError("Please define at least one valid argument!")
-        elif id is None:
-            index = self._findByName(name)
-        elif name is None:
-            index = self._findByID(id)
-        else:
-            index = self._findByNameAndID(id, name)
+    def changePriority(self, new_priority: int, id:int=None, name: str=None) -> None:
+        # Negative priorities can only be used inside the function
+        if new_priority < 0:
+            raise ValueError("Negative priorities are not allowed.")
 
-        if index > 0 and index < self.size:        
+        index = self.findIndex(id, name)
+        if index >= 0 and index < self.size:        
             if(new_priority > self.queue[index].priority):
                 self._increasePriority(index, new_priority)   
             elif(new_priority < self.queue[index].priority):
                 self._decreasePriority(index, new_priority)
         
         return
+
+    def remove(self, id: int=None, name: str=None):
+        index = self.findIndex(id, name)
+        if index == -1:
+            return
+        else:
+            self._decreasePriority(index, -1)
+            self.poll()
+
 
     def print(self) -> None:
         for client in self.queue:
@@ -138,4 +154,5 @@ pq.add(client3)
 pq.add(client4)
 pq.changePriority(5, name="Feruza Yunusova")
 pq.changePriority(7, id=12349)
+pq.remove(id=945)
 pq.print()
