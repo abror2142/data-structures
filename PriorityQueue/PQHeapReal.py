@@ -89,11 +89,23 @@ class PriorityQueue:
             raise ValueError("Please define at least one valid argument!")
         elif id is None:
             index = self._findByName(name)
-        elif name is None:
+        elif name == '':
             index = self._findByID(id)
+            print("Hit!")
         else:
             index = self._findByNameAndID(id, name)
         return index
+
+    def empty(self):
+        return self.size == 0
+    
+    def getSize(self):
+        return self.size
+    
+    def peek(self) -> Client:
+        if self.size ==  0:
+            print("Queue is empty!")
+        return self.queue[0]
 
     def add(self, client: Client) -> bool:
         if self.size == self.max_size:
@@ -121,6 +133,9 @@ class PriorityQueue:
             raise ValueError("Negative priorities are not allowed.")
 
         index = self.findIndex(id, name)
+        print("------", index, "------", id, name, new_priority)
+        if name is '':
+            print("None Type Hit!")
         if index >= 0 and index < self.size:        
             if(new_priority > self.queue[index].priority):
                 self._increasePriority(index, new_priority)   
@@ -140,19 +155,45 @@ class PriorityQueue:
 
     def print(self) -> None:
         for client in self.queue:
-            print(client.priority, client.fullName)
+            print(client.id, client.fullName, client.priority)
 
 
 pq = PriorityQueue()
-client1 = Client(1289, "Nodir Botirov", 2)
-client2 = Client(12349, "Abdulla Nasimov", 1)
-client3 = Client(9485, "Feruz Yunusov", 14)
-client4 = Client(945, "Feruza Yunusova", 0)
-pq.add(client1)
-pq.add(client2)
-pq.add(client3)
-pq.add(client4)
-pq.changePriority(5, name="Feruza Yunusova")
-pq.changePriority(7, id=12349)
-pq.remove(id=945)
-pq.print()
+
+while True:
+    if(pq.empty()):
+        print("Queue is empty now! Insert clients!")
+
+    print("Choose a command: ")
+    print("\t1 -> insert \t2 -> poll \t3 -> delete")
+    print("\t4 -> change \t5 -> print \t6 -> peek")
+
+    command = int(input("Command code (e.g. 1): "))
+
+    if command == 1:
+        id = int(input("Client ID: "))
+        name = input("Client Full Name: ")
+        priority = int(input("Priority: "))
+
+        client = Client(id, name, priority)
+        pq.add(client)
+    elif command == 2:
+        pq.poll()
+    elif command == 3:
+        print("At least one is required: Client ID or Full Name!")
+        id = int(input("Client ID: "))
+        name = input("Client Full Name: ")
+        pq.remove(id, name)
+        print("Sucessfully deleted!")
+    elif command == 4:
+        print("At least one is required: Client ID or Full Name!")
+        id = int(input("Client ID: ") or -1)
+        name = input("Client Full Name: ")
+        priority = int(input("New priority: "))
+        pq.changePriority(priority, id=id, name=name)
+    elif command == 5:
+        pq.print()
+    elif command == 6:
+        client: Client = pq.peek()
+        print("Peek:", client.fullName, client.id)
+    print()
